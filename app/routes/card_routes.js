@@ -16,6 +16,24 @@ const requireToken = passport.authenticate('bearer', { session: false })
 
 const router = express.Router()
 
+// Index
+router.get('/cards', requireToken, (req, res, next) => {
+  Card.find()
+    .then(cards => {
+      return cards.map(card => card.toObject())
+    })
+    .then(cards => res.status(200).json({ cards: cards }))
+    .catch(next)
+})
+
+// Show
+router.get('/cards/:id', requireToken, (req, res, next) => {
+  Card.findById(req.params.id)
+    .then(handle404)
+    .then(card => res.status(200).json({ card: card.toObject() }))
+    .catch(next)
+})
+
 // Create
 router.post('/cards', requireToken, (req, res, next) => {
   req.body.card.owner = req.user.id
@@ -26,5 +44,18 @@ router.post('/cards', requireToken, (req, res, next) => {
     .catch(next)
 })
 
+// Update
+router.patch('/cards/:id', requireToken, removeBlanks, (req, res, next) => {
+  delete req.body.card.owner
+
+  Card.findById(req.params.id)
+    .then(handle404)
+    .then(card => {
+      requireOwnership(req, card)
+      return card.updateOne(req.body.card)
+    })
+    .then(() => res.sendStatus(204))
+    .catch(next)
+})
 
 module.exports = router
