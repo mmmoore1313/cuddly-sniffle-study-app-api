@@ -58,4 +58,16 @@ router.patch('/cards/:id', requireToken, removeBlanks, (req, res, next) => {
     .catch(next)
 })
 
+// Delete
+router.delete('/cards/:id', requireToken, (req, res, next) => {
+  Card.findById(req.params.id)
+    .then(handle404)
+    .then(card => {
+      requireOwnership(req, card)
+      card.deleteOne()
+    })
+    .then(() => res.sendStatus(204))
+    .catch(next)
+})
+
 module.exports = router
