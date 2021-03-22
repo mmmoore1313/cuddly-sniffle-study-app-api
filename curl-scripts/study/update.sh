@@ -11,7 +11,7 @@ curl "${API}${URL_PATH}/${ID}" \
   --data '{
     "card": {
       "term": "'"${TERM}"'",
-      "defintion": "'"${DEF}"'"
+      "definition": "'"${DEF}"'"
     }
   }'
   
